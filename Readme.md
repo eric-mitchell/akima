@@ -28,5 +28,5 @@ python manage.py runserver
 
 1. Login to http://localhost:8000/admin
 2. Create a new Article, just need to give it a URL, Akima will do the rest.
-3. Now to go http://localhost:8000/a/<uuid>
+3. Now to go http://localhost:8000/portal/uuid
 4. Profit!

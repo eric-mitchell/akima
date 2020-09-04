@@ -1,10 +1,9 @@
-import uuid as uuid
 from django.db import models
 import uuid
 from newspaper import Article as NewspaperArticle
 
+
 # Create your models here.
-from taggit.managers import TaggableManager
 
 
 class Article(models.Model):
@@ -23,7 +22,6 @@ class Article(models.Model):
     keywords = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-
         if len(self.html) == 0:
             a = NewspaperArticle(self.url)
             a.download()
