@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<button id="serialize">Save annotations</button>
+<form action="{% url 'save-annotations' %}" method="post" id="save-annotations">
+    {% csrf_token %}
+    <input id="hidden-annotations" name="annotations" type="hidden">
+    <input id="annotation-uuid" name="uuid" type="hidden" value="{{ article.uuid }}">
+    <button id="serialize">Save annotations</button>
+</form>
+
 <div id="title"><h1>{{ article.title }} </h1></div>
 <div id="sandbox" class="content highlighter-context text-justify">
     {{ article.text_basic_html | safe }}
@@ -968,13 +974,17 @@ $( document ).ready(function() {
 
             var serializeBtn  = document.getElementById('serialize');
             var sandbox = document.getElementById('sandbox');
+            var save_annotations = document.getElementById('save-annotations');
+            var hidden_annotations = document.getElementById('hidden-annotations');
 
             var hltr = new TextHighlighter(sandbox);
 
             var serialized = '';
 
             serializeBtn.addEventListener('click', function () {
-                serialized = hltr.serializeHighlights();
+                hidden_annotations.value = hltr.serializeHighlights();
+                save_annotations.submit();
+
             });
 
 });
