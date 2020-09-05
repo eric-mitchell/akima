@@ -1,0 +1,300 @@
+<script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+      integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+<style>
+          .named-badge {
+                    user-select: none;
+                    -moz-user-select: none;
+                    -khtml-user-select: none;
+                    -webkit-user-select: none;
+                    -o-user-select: none;
+            }
+
+</style>
+
+<section class="container" id="Other"
+         style="margin-bottom:15px; padding: 10px 10px; font-family: Verdana, Geneva, sans-serif; color:#333333; font-size:0.9em;">
+    <div class="panel-body">
+        <button data-toggle="collapse" data-target="#demo" class="btn btn-info">Instructions</button>
+        <div id="demo" class="collapse">
+
+            <ul>
+                <li>Read the following property legal description. Find "Lot numbers", "Plat books", and/or "Plat book
+                    pages".
+                </li>
+                <li>When you find "Lot numbers", "Plat books", or "Plat book pages", choose a label from the right, and
+                    double click or highlight that value to tag it. Label all of the "Lot numbers", "Plat books", or
+                    "Plat book pages"
+                    that you find.
+                </li>
+                <li>If you make a mistake, left click the label to remove it, and try again.</li>
+                <li>If the description does not contain "Lot numbers", "Plat books", and/or "Plat book
+                    pages" then place a check in the box "Cannot tag" and submit.
+                </li>
+                <li>If a Lot number is repeated, for example LOT NUMBER ONE HUNDRED FORTY TWO (142), tag both
+                    individually. In this instance both ONE HUNDRED FORTY TWO and 142 would be tagged individually as
+                    LOT_NUMBER.
+                </li>
+                <li>There will be spelling errors and some descriptions that don't make sense. In these cases take your
+                    best guess at the correct values even if there are spelling mistakes.
+                </li>
+                <li>The words LOT and PLAT are set to bold to make finding them easier.</li>
+                <li>Optional: <b>Hot keys</b> are enabled to make this easier. Cycle through "Lot numbers", "Plat
+                    books", or "Plat
+                    book pages" tags using the "a", "s", and "d" keys to avoid extra mouse movement.  Use the key "g" to select "Cannot tag".
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row" id="app">
+            <div class="col-8">
+                <div class="card-body">
+                    <div v-on:click="done">
+                            <span style="white-space: pre-line" id="_text_field"><span id="doc_0">Hurricane Laura made landfall overnight near Cameron, Louisiana, bringing "catastrophic storm surge, extreme winds and flash flooding" to portions of the state, the National Hurricane Center said Thursday. The storm had intensified rapidly into a Category 4 hurricane before slamming into the Gulf Coast near the Louisiana-Texas border.
+
+By mid-Thursday, the hurricane weakened to a tropical storm as it moved north over Louisiana, which took the brunt of the damage. It was continuing to bring strong winds and flooding rainfall to northern Louisiana and southeastern Arkansas, according to forecasters.
+
+High water levels were persisting Thursday along the Gulf Coast. Tornadoes are possible through Thursday night in parts of Louisiana, Arkansas and Mississippi.
+
+                            </span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-2 mt-4">
+                <div v-for="tag in tags"
+                     v-bind:class="['btn',isactive(tag.text) ? 'btn-success' : 'btn-outline-success']"
+                     v-bind:style="{'background-color': tag.color ,  'border-color': tag.color, 'color':'#fff'}">
+                    <input type="radio" class="" :value="tag.text" :name="tag.text" :id="tag.text"
+                           v-model="selected_tag">
+                    <label class="form-check-label  text-left" :for="tag.text"> {{ tag.text }} </label>
+                    <br>
+                </div>
+                <br><br>
+                <input type="checkbox" id="nothingToDo" value="true"> Cannot tag
+            </div>
+        </div>
+
+    </div>
+    <crowd-form answer-format="flatten-objects">
+        <input type="hidden" name="id" id="${id}"/>
+        <input type="hidden" name="trainingData" id="trainingData"/>
+        <crowd-button form-action="submit" variant="primary" id="submitButton">Submit</crowd-button>
+
+    </crowd-form>
+    <!-- Optional JavaScript -->
+
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
+            integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+    <script>
+function format(fmt, ...args){
+    return fmt
+        .split("%%")
+        .reduce((aggregate, chunk, i) =>
+            aggregate + chunk + (args[i] || ""), "");
+}
+
+    myapp = new Vue({
+      el: "#app",
+      data: {
+        text : ``,
+        text_tag:'',
+        selected : '' ,
+        selected_tag : 'LOT_NUMBER',
+        option : 'ORG',
+        tags : [ {text: 'LOT_NUMBER' , color: '#e74c3c'} ,
+                {text: 'PLAT_BOOK' , color: '#3498db'} ,
+                {text: 'PLAT_BOOK_PAGE' , color: '#1abc9c'} ] ,
+        to_add_tag : '',
+        isactive : function(a){return a== this.selected_tag},
+        color_of : function(tag){
+            for(var i in this.tags){
+                if(this.tags[i].text == tag){
+                    return this.tags[i].color
+                }
+            }
+            return 0
+        }
+      },
+      methods: {
+
+            copy_text : function(){
+                document.getElementById("_text_field").innerHTML ='';
+                docs = this.text.split('\n');
+                for(var i=0;i<docs.length;i++){
+                    document.getElementById("_text_field").innerHTML += format('<div id="doc_%%">%%</div>', i, docs[i]);
+                }
+            },
+
+            add_tag : function(event){
+                if(!this.color_of(this.to_add_tag)){
+                this.tags.push({text: this.to_add_tag , color: this.getRandomColor()});
+                }
+                this.to_add_tag = ''
+
+            },
+
+            getRandomColor : function getRandomColor() {
+                  var letters = '0123456789ABCDEF';
+                  var color = '#';
+                  for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                  }
+                  return color;
+                },
+
+            to_json : function(e){
+                parts = document.getElementById("_text_field").childNodes
+                var spacy_doc = []
+                parts.forEach(function (node) {
+                    var text_json = []
+                    var char_index = 0
+                    elements = node.childNodes;
+                    //console.log(elements);
+                    for (var i = 0; i < elements.length; i++) {
+                        if(elements[i].nodeType == 3){
+                            if(elements[i].nodeValue != ''){
+                                char_index += elements[i].nodeValue.length
+                            }
+                        }
+                        else{
+                            var tmp = elements[i].getAttribute("text");
+                            if(tmp){
+                                if(tmp.slice(-1) == ' '){
+                                    tmp = tmp.substring(0, tmp.length - 1);
+                                    text_json.push(format("(%%, %%, '%%')", char_index, char_index+tmp.length, elements[i].getAttribute("label")));
+                                    char_index += tmp.length + 1
+                                }
+                                else{
+                                    text_json.push(format("(%%, %%, '%%')", char_index, char_index+tmp.length, elements[i].getAttribute("label")));
+                                    char_index += tmp.length
+                                }
+                            }
+                        }
+
+                    }
+                    spacy_doc.push(text_json);
+                });
+
+                var train_data ='';
+                var docs = this.text.split('\n');
+                for(var i=0; i<spacy_doc.length;i++){
+                    //console.log(spacy_doc[i])
+                    if(spacy_doc[i].length){
+                        train_data += `${spacy_doc[i].join(', ')}`;
+                    }
+
+                }
+
+                document.getElementById("trainingData").value = train_data;
+            },
+
+            done : function (event) {
+                var sel, range;
+                if (window.getSelection) {
+                    sel = window.getSelection();
+                    if (sel.rangeCount && sel.toString().length) {
+                            text = sel.toString();
+                        range = sel.getRangeAt(0);
+                        range.deleteContents();
+                        var tag = document.createElement("tag");
+                        tag.setAttribute('text', text);
+
+                        tag.setAttribute('onclick', "untag(this)");
+
+                        tag.setAttribute('label', this.selected_tag);
+                        color_tag = this.color_of(this.selected_tag)
+                        //tag.innerHTML = '<span class="named-badge btn btn-warning" style="color:#fff; background-color:'+color_tag+'; border-color:'+color_tag+';">'+text+' <span class="badge badge-light"> '+this.selected_tag+' </span></span>'
+                        tag.innerHTML = '<span class="named-badge btn btn-warning" style="color:#fff; background-color:'+color_tag+'; border-color:'+color_tag+';">'+text+'</span>'
+                        range.insertNode(tag);
+                        window.getSelection().removeAllRanges();
+                    }
+                }
+                this.to_json()
+            }
+      }
+    })
+
+untag = function(obj){
+    text = obj.getAttribute('text');
+    obj.replaceWith(document.createTextNode( text ));
+};
+
+hotkeys('a,s,d,g', function(event,handler) {
+  switch(handler.key){
+    case "a":$("#LOT_NUMBER").trigger( "click" );break;
+    case "s":$("#PLAT_BOOK").trigger( "click" );break;
+    case "d":$("#PLAT_BOOK_PAGE").trigger( "click" );break;
+    case "g":var c = document.getElementById('nothingToDo');
+        if(c.checked){
+            c.checked = false;
+        }else{
+            c.checked=true;
+        }
+        break;
+  }
+});
+
+$.fn.wrapInTag = function(opts) {
+
+  var tag = opts.tag || 'strong'
+    , words = opts.words || []
+    , regex = RegExp(words.join('|'), 'gi') // case insensitive
+    , replacement = '<'+ tag +'>$&</'+ tag +'>';
+
+  return this.html(function() {
+    return $(this).text().replace(regex, replacement);
+  });
+};
+
+
+
+function countTags(){
+    parts = document.getElementById("_text_field").childNodes;
+    var cnt = 0;
+    parts.forEach(function (node) {
+          elements = node.childNodes;
+
+          for (var i = 0; i < elements.length; i++) {
+              if(elements && elements[i].nodeType != 3){
+                  var tmp = elements[i].getAttribute("text");
+                  if(tmp){
+                    cnt++;
+                  }
+              }
+          }
+
+    });
+    return cnt;
+}
+
+$(document).ready(function() {
+  $('#submitButton').click(function() {
+    console.log(countTags())
+    console.log(document.getElementById('nothingToDo').checked);
+    if (countTags() === 0 && document.getElementById('nothingToDo').checked === false) {
+      alert('Please tag at least one field or check the box "Cannot tag".');
+      return false;
+    }
+    return true;
+  });
+});
+
+
+    </script>
+
+</section>
